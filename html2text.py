@@ -1,6 +1,9 @@
 #!/usr/bin/env python
+import sys
+
 """html2text: Turn HTML into equivalent Markdown-structured text."""
-LANG = "java" #TODO option
+# TODO option
+LANG = "java"
 __version__ = "3.200.3"
 __author__ = "Aaron Swartz (me@aaronsw.com)"
 __copyright__ = "(C) 2004-2008 Aaron Swartz. GNU GPL 3."
@@ -10,6 +13,8 @@ __contributors__ = ["Martin 'Joey' Schulze", "Ricardo Reyes",
 # TODO:
 #   Support decoded entities with unifiable.
 
+reload(sys)
+sys.setdefaultencoding('utf8')
 try:
     True
 except NameError:
@@ -290,7 +295,7 @@ class HTML2Text(HTMLParser.HTMLParser):
     def handle(self, data):
         self.feed(data)
         self.feed("")
-        return self.optwrap(self.close())
+        return self.optwrap(self.handle_list_custom(self.close()))
 
     def outtextf(self, s):
         self.outtextlist.append(s)
@@ -322,6 +327,13 @@ class HTML2Text(HTMLParser.HTMLParser):
 
     def handle_endtag(self, tag):
         self.handle_tag(tag, None, 0)
+
+    @staticmethod
+    def handle_list_custom(data):
+        return data.decode("utf-8")\
+            .replace(u"\u2022", " * ")\
+            .replace(u"\u25AA", " * ")\
+            .encode("utf-8")
 
     def previousIndex(self, attrs):
         """ returns the index of certain set of attributes (of a link) in the
