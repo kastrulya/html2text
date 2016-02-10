@@ -17,7 +17,9 @@ text to separate lists
   3. end
 
 **bold**  
-_italic_  
+_italic_
+text with \*\*asterisks but not\*\* bold
+text with \*asterisk but not\* italicized
 text with \_underscore but not \_italicized  
 
     
@@ -30,7 +32,7 @@ text with \_underscore but not \_italicized
 
 Some `fixed width text` here  
 _`italic fixed width text`_
-
+this is \# simple text
 2012\. Now that was a good year. So was 2011. That's all.
 
 3.14159 is an approximation of pi.

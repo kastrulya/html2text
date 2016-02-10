@@ -4,10 +4,21 @@ import os
 import re
 import subprocess
 import sys
-
-sys.path.insert(0, '..')
 import html2text
 
+sys.path.insert(0, '..')
+reload(sys)
+sys.setdefaultencoding('utf8')
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 def test_module(fn, google_doc=False, **kwargs):
     print_conditions('module', google_doc=google_doc, **kwargs)
@@ -59,10 +70,12 @@ def print_conditions(mode, *args, **kwargs):
 
 def print_result(fn, mode, result, actual):
     if result == actual:
-        print('PASS')
+        print(bcolors.OKGREEN + 'PASS')
+        print(bcolors.ENDC)
         return True
     else:
-        print('FAIL')
+        print(bcolors.FAIL + 'FAIL')
+        print(bcolors.ENDC)
 
         if mode == 'command':
             print(len(result), len(actual))
@@ -87,6 +100,7 @@ def get_baseline(fn):
     return f.read()
 
 def run_all_tests():
+    # html_files = glob.glob("*.html")
     html_files = glob.glob("*.html")
     passing = True
     for fn in html_files:
@@ -117,7 +131,7 @@ def run_all_tests():
     if passing:
         print("ALL TESTS PASSED")
     else:
-        print("Fail.")
+        print(bcolors.FAIL + "Fail.")
         sys.exit(1)
 
 if __name__ == "__main__":

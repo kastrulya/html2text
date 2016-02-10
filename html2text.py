@@ -255,6 +255,7 @@ class HTML2Text(HTMLParser.HTMLParser):
         self.list = []
         self.blockquote = 0
         self.pre = 0
+        self.table = 0
         self.startpre = 0
         self.code = False
         self.br_toggle = ''
@@ -499,7 +500,7 @@ class HTML2Text(HTMLParser.HTMLParser):
                 # handle some font attributes, but leave headers clean
                 self.handle_emphasis(start, tag_style, parent_style)
 
-        # I add there one conditional! if tag has attribute 'CodeSample'
+        # Yulia: if tag has attribute 'CodeSample'
         if not start and self.closed_tag_with_symbol == tag:
             self.o(self.closed_symbol)
             self.closed_symbol = ''
@@ -527,6 +528,7 @@ class HTML2Text(HTMLParser.HTMLParser):
                 self.closed_tag_with_symbol = self.parent_tag
                 self.parent_tag = ""
 
+
         if tag == "abbr":
             if start:
                 self.abbr_title = None
@@ -540,7 +542,13 @@ class HTML2Text(HTMLParser.HTMLParser):
                 self.abbr_data = ''
 
         if tag == "a" and not self.ignore_links:
-            if start:
+            # if start:
+            if self.table and start:
+               self.o('<a href="' + attrs['href'] + '">')
+            elif self.table:
+                self.o("</a>")
+
+            elif start:
                 if has_key(attrs, 'href') and not (
                     self.skip_internal_links and attrs['href'].startswith(
                         '#')):
@@ -1025,4 +1033,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()
