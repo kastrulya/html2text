@@ -88,7 +88,25 @@ def func(x):
       Some <code>fixed width text</code> here<br/>
       <i><code>italic fixed width text</code></i>
     </p>
-<span>this is # simple text</span>
+    <span>this is # simple text</span>
+    <p class="p_Normal1">
+        <span class="f_Normal1">To receive messages from more than one
+            subtopic, subscribers can use the wildcard character (*) in place
+            of any tokens in the subtopic name. For instance, a subscriber
+            could subscribe to the following subtopic: &quot;
+        </span>
+        <span class="f_CodeExample">news..business.*</span>
+        <span class="f_Normal1">&quot;, and the publisher sends messages to
+            &quot;
+        </span>
+        <span class="f_CodeExample">news.business.newyork</span>
+        <span class="f_Normal1">&quot; and &quot;</span>
+        <span class="f_CodeExample">news.business.tokyo</span>
+        <span class="f_Normal1">&quot;. In this case the messages published to
+            either subtopic will be delivered to the consumer.
+        </span>
+    </p>
+
 <script type="text/javascript">
 //<![CDATA[
 (function(id) {

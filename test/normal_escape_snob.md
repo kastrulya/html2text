@@ -33,6 +33,13 @@ text with \_underscore but not \_italicized
 Some `fixed width text` here  
 _`italic fixed width text`_
 this is \# simple text
+To receive messages from more than one subtopic, subscribers can use the
+wildcard character (\*) in place of any tokens in the subtopic name. For
+instance, a subscriber could subscribe to the following subtopic:
+"`news..business.\*`", and the publisher sends messages to
+"`news.business.newyork`" and "`news.business.tokyo`". In this case the
+messages published to either subtopic will be delivered to the consumer.
+
 2012\. Now that was a good year. So was 2011. That's all.
 
 3.14159 is an approximation of pi.

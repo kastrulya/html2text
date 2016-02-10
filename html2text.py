@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """html2text: Turn HTML into equivalent Markdown-structured text."""
+LANG = "java" #TODO option
 __version__ = "3.200.3"
 __author__ = "Aaron Swartz (me@aaronsw.com)"
 __copyright__ = "(C) 2004-2008 Aaron Swartz. GNU GPL 3."
@@ -226,7 +227,7 @@ class HTML2Text(HTMLParser.HTMLParser):
         self.strong_mark = '**'
 
         # Yulia, symbols to mark code
-        self.code_block_start = "```\n"
+        self.code_block_start = "```%s\n" % LANG
         self.code_block_end = "```"
         self.code_line = "`"
 
@@ -505,6 +506,7 @@ class HTML2Text(HTMLParser.HTMLParser):
             self.o(self.closed_symbol)
             self.closed_symbol = ''
             self.closed_tag_with_symbol = ''
+            self.code = False
 
         if tag in ["code", "tt"] and not self.pre: self.o(
             '`')  # TODO: `` `this` ``
@@ -512,6 +514,7 @@ class HTML2Text(HTMLParser.HTMLParser):
             self.o(self.code_line)
             self.closed_symbol = self.code_line
             self.closed_tag_with_symbol = tag
+            self.code = True
 
         # check whether <p> contains children
         if start:
@@ -527,6 +530,7 @@ class HTML2Text(HTMLParser.HTMLParser):
                 self.closed_symbol = self.code_block_end
                 self.closed_tag_with_symbol = self.parent_tag
                 self.parent_tag = ""
+                self.code = True
 
 
         if tag == "abbr":
@@ -965,7 +969,7 @@ def main():
                  help="use an asterisk rather than an underscore for emphasized text")
     p.add_option("-b", "--body-width", dest="body_width", action="store",
                  type="int",
-                 default=BODY_WIDTH,
+                 default=0,
                  help="number of characters per output line, 0 for no wrap")
     p.add_option("-i", "--google-list-indent", dest="list_indent",
                  action="store", type="int",
@@ -976,7 +980,7 @@ def main():
                  default=False,
                  help="hide strike-through text. only relevant when -g is specified as well")
     p.add_option("--escape-all", action="store_true", dest="escape_snob",
-                 default=False,
+                 default=True,
                  help="Escape all special characters.  Output is less readable, but avoids corner case formatting issues.")
     (options, args) = p.parse_args()
 
