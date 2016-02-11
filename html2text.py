@@ -2,8 +2,8 @@
 import sys
 
 """html2text: Turn HTML into equivalent Markdown-structured text."""
-# TODO option
-LANG = "java"
+# TODO fix table and link
+
 __version__ = "3.200.3"
 __author__ = "Aaron Swartz (me@aaronsw.com)"
 __copyright__ = "(C) 2004-2008 Aaron Swartz. GNU GPL 3."
@@ -281,7 +281,7 @@ class HTML2Text(HTMLParser.HTMLParser):
 
         self.closed_symbol = ''  # Yulia, if tag has a special attribute
         self.closed_tag_with_symbol = ''  # Yulia, close tag with special charecters
-        self.parent_tag = "" #Yulia, detect paragraph with code
+        self.parent_tag = ""  # Yulia, detect paragraph with code
 
         try:
             del unifiable_n[name2cp('nbsp')]
@@ -331,9 +331,13 @@ class HTML2Text(HTMLParser.HTMLParser):
 
     @staticmethod
     def handle_list_custom(data):
-        return data.decode("utf-8")\
-            .replace(u"\u2022", " * ")\
-            .replace(u"\u25AA", " * ")\
+        #delete all the span with empty code
+        re_code_tag = re.compile(
+            "(\<span\s.{0,2}class\s{0,2}=\s{0,2}\".{0,2}Code.{1,2}ample\"\.*>\s{0,2}(&nbsp;*)*</span>)")
+        data = re.sub(re_code_tag, "", data)
+        return data.decode("utf-8") \
+            .replace(u"\u2022", " * ") \
+            .replace(u"\u25AA", " * ") \
             .encode("utf-8")
 
     def previousIndex(self, attrs):
@@ -545,7 +549,6 @@ class HTML2Text(HTMLParser.HTMLParser):
                 self.parent_tag = ""
                 self.code = True
 
-
         if tag == "abbr":
             if start:
                 self.abbr_title = None
@@ -561,14 +564,15 @@ class HTML2Text(HTMLParser.HTMLParser):
         if tag == "a" and has_key(attrs, 'href') and not self.ignore_links:
             # if start:
             if self.table and start:
-               self.o('<a href="' + attrs['href'] + '">')
+                self.o('<a href="' + attrs['href'] + '">')
             elif self.table:
                 self.o("</a>")
 
             elif start:
                 if has_key(attrs, 'href') and not (
-                    self.skip_internal_links and attrs['href'].startswith(
-                        '#')):
+                            self.skip_internal_links and attrs[
+                            'href'].startswith(
+                            '#')):
                     self.astack.append(attrs)
                     self.maybe_automatic_link = attrs['href']
                 else:
@@ -653,21 +657,22 @@ class HTML2Text(HTMLParser.HTMLParser):
                     self.o(str(li['num']) + ". ")
                 self.start = 1
 
-        if tag == 'table' and has_key(attrs, 'class') and 'error codes' in attrs['class']:
+        if tag == 'table' and has_key(attrs, 'class') and 'error codes' in \
+                attrs['class']:
             if start:
                 self.table = 1
-                self.o("<"+tag+">")
+                self.o("<" + tag + ">")
             else:
                 self.table = 0
-                self.o("</"+tag+">")
+                self.o("</" + tag + ">")
 
-        if tag in ["tr", "td", "th"]:
+        if tag in ["tr", "td", "th"] and self.table:
             if tag == 'tr':
                 self.pbr()
             if start:
-                self.o("<"+tag+">")
+                self.o("<" + tag + ">")
             else:
-                self.o("</"+tag+">")
+                self.o("</" + tag + ">")
 
         if tag == "pre":
             if start:
@@ -752,7 +757,7 @@ class HTML2Text(HTMLParser.HTMLParser):
                 self.space = 0
 
             if self.a and ((
-                                   self.p_p == 2 and self.links_each_paragraph) or force == "end"):
+                                           self.p_p == 2 and self.links_each_paragraph) or force == "end"):
                 if force == "end": self.out("\n")
 
                 newa = []
@@ -1069,5 +1074,4 @@ def main():
 
 
 if __name__ == "__main__":
-
     main()

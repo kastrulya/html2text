@@ -1,17 +1,20 @@
 #!/bin/bash
 # Usage: convert files with html2text.py lib
+# Params: 1 - folder from which files are converted
+# 		  2 - folder destination
+#		  3 - code block language
 shopt -s nullglob
-for f in AndroidSDK/*.htm
+folder_from=$1
+folder_dest=$2
+lang=${3-""}
+for f in "$folder_from"/*.htm
 do
 	echo "Convert $f to md format"
 	from=$f
 	echo "$from"
 	file_to=$(basename $f .htm)
-	folder_to="to"
-	path_to="$folder_to/$file_to.md"
+	mkdir -p "$folder_dest"
+	path_to="$folder_dest/$file_to.md"
 	echo "$path_to"
-	# python save_escape_character.py #escape charecter
-	python html2text.py $from > $path_to #convert html to md
-	python convert_list.py #convert list to normal view
-	# delete comments
+	python html2text.py "$from" -l $lang > "$path_to" #convert html to md
 done
