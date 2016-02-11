@@ -216,6 +216,7 @@ class HTML2Text(HTMLParser.HTMLParser):
         HTMLParser.HTMLParser.__init__(self)
 
         # Config options
+        self.lang = ""
         self.unicode_snob = UNICODE_SNOB
         self.escape_snob = ESCAPE_SNOB
         self.links_each_paragraph = LINKS_EACH_PARAGRAPH
@@ -232,8 +233,8 @@ class HTML2Text(HTMLParser.HTMLParser):
         self.strong_mark = '**'
 
         # Yulia, symbols to mark code
-        self.code_block_start = "```%s\n" % LANG
-        self.code_block_end = "```"
+        self.code_block_start = "```" + self.lang
+        self.code_block_end = "```\n"
         self.code_line = "`"
 
         if out is None:
@@ -538,7 +539,7 @@ class HTML2Text(HTMLParser.HTMLParser):
 
         if has_key(attrs, 'class') and 'CodeSample' in attrs['class']:
             if self.parent_tag:
-                self.o(self.code_block_start)
+                self.o(self.code_block_start + self.lang)
                 self.closed_symbol = self.code_block_end
                 self.closed_tag_with_symbol = self.parent_tag
                 self.parent_tag = ""
@@ -557,7 +558,7 @@ class HTML2Text(HTMLParser.HTMLParser):
                     self.abbr_title = None
                 self.abbr_data = ''
 
-        if tag == "a" and not self.ignore_links:
+        if tag == "a" and has_key(attrs, 'href') and not self.ignore_links:
             # if start:
             if self.table and start:
                self.o('<a href="' + attrs['href'] + '">')
@@ -652,8 +653,21 @@ class HTML2Text(HTMLParser.HTMLParser):
                     self.o(str(li['num']) + ". ")
                 self.start = 1
 
-        if tag in ["table", "tr"] and start: self.p()
-        if tag == 'td': self.pbr()
+        if tag == 'table' and has_key(attrs, 'class') and 'error codes' in attrs['class']:
+            if start:
+                self.table = 1
+                self.o("<"+tag+">")
+            else:
+                self.table = 0
+                self.o("</"+tag+">")
+
+        if tag in ["tr", "td", "th"]:
+            if tag == 'tr':
+                self.pbr()
+            if start:
+                self.o("<"+tag+">")
+            else:
+                self.o("</"+tag+">")
 
         if tag == "pre":
             if start:
@@ -994,7 +1008,11 @@ def main():
     p.add_option("--escape-all", action="store_true", dest="escape_snob",
                  default=True,
                  help="Escape all special characters.  Output is less readable, but avoids corner case formatting issues.")
+    p.add_option("-l", "--lang", action="store", dest="lang", default="\n",
+                 help="Highlight code block with special language")
+
     (options, args) = p.parse_args()
+
 
     # process input
     encoding = "utf-8"
@@ -1044,6 +1062,8 @@ def main():
     h.google_doc = options.google_doc
     h.hide_strikethrough = options.hide_strikethrough
     h.escape_snob = options.escape_snob
+    h.lang = options.lang
+    h.code_block_start += h.lang + '\n'
 
     wrapwrite(h.handle(data))
 
