@@ -199,6 +199,7 @@ class HTML2Text(HTMLParser.HTMLParser):
         self.strong_mark = '**'
         self.code_block_start = "```\n"
         self.code_block_end = "```"
+        self.code_line = "`"
 
         if out is None:
             self.out = self.outtextf
@@ -227,6 +228,8 @@ class HTML2Text(HTMLParser.HTMLParser):
         self.pre = 0
         self.startpre = 0
         self.code = False
+        self.code_block_flag = False
+        self.code_line_flag = False
         self.br_toggle = ''
         self.lastWasNL = 0
         self.lastWasList = False
@@ -442,14 +445,20 @@ class HTML2Text(HTMLParser.HTMLParser):
             self.quiet = 0 # sites like 9rules.com never close <head>
 
         if tag == "p":
-            if start and has_key(attrs, "class") and 'CodeSample' in attrs["class"]:
-                self.code = True
+            if has_key(attrs, "class") and 'CodeSample' in attrs["class"]:
+                self.code_block_flag = True
                 self.o(self.code_block_start)
-            elif not start:
-                if self.code:
-                    self.o(self.code_block_end)
-                    self.code = False
+            elif not start and self.code_block_flag:
+                self.o(self.code_block_end)
+                self.code_block_flag = False
 
+        if tag == "span" and not self.code_block_flag:
+            if has_key(attrs, "class") and 'CodeExample' in attrs["class"]:
+                self.o(self.code_line)
+                self.code_line_flag = True
+            elif not start and self.code_line_flag:
+                self.o(self.code_line)
+                self.code_line_flag = False
 
         if tag == "blockquote":
             if start:
